@@ -1,0 +1,29 @@
+﻿@page "/"
+
+@using VendingMachine.Models;
+@using VendingMachine.Utils;
+
+@inject NavigationManager navMan
+
+<TelerikForm Model="@userInput">
+    <FormButtons>
+        <TelerikButton ButtonType="@ButtonType.Button" OnClick="OnNextHandler">Next</TelerikButton>
+    </FormButtons>
+    <FormItems>
+        <FormItem Field="@nameof(userInput.FlavourNumber)" LabelText="Please enter the item number"></FormItem>
+    </FormItems>
+</TelerikForm>
+
+@code {
+    public bool IsShow { get; set; } = false;
+    public int FlavourNumber { get; set; }
+
+    public UserInput userInput = new UserInput();
+
+    private void OnNextHandler()
+    {
+        IsShow = true;
+        FlavourNumber = userInput.FlavourNumber;
+        navMan.NavigateTo($"/payment/{IsShow}/{FlavourNumber}");
+    }
+}

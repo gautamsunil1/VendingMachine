@@ -1,0 +1,133 @@
+﻿@page "/payment/{IsShow:bool}/{FlavourNumber:int}"
+
+@using VendingMachine.Models;
+@using VendingMachine.Utils;
+
+@inject NavigationManager navMan
+
+<TelerikButton ButtonType="@ButtonType.Button" OnClick="@OnGoBackClickHandler">Go Back</TelerikButton>
+@if (IsShow)
+{
+    <p>Cost: @Constants.Price AUD</p>
+}
+<TelerikForm Model="@userInput">
+    <FormButtons>
+        <TelerikButton ButtonType="@ButtonType.Button" OnClick="OnCashClickHandler">Cash</TelerikButton>
+        <TelerikButton ButtonType="@ButtonType.Button" OnClick="OnCreditCardClickHandler">Credit Card</TelerikButton>
+    </FormButtons>
+    <FormItems>
+        <p>Please choose a payment option</p>
+    </FormItems>
+</TelerikForm>
+@if (PaymentMethod == "Cash")
+{
+    <p>Please insert cash to pay</p>
+    <TelerikButton OnClick="@DisplayInformation">Done</TelerikButton>
+}
+else if (PaymentMethod == "Credit Card")
+{
+    <p>Please tap credit card on the card reader</p>
+    <TelerikButton OnClick="@DisplayInformation">Done</TelerikButton>
+}
+@if (flag)
+{
+    <p>Number of cans remaining: @SoldFlavourCount</p>
+    <p>Total money in machine: @MoneyInMachine</p>
+    <p>Credit Card payment amount: @CreditCardPaymentTotal</p>
+}
+
+@code {
+    [Parameter]
+    public bool IsShow { get; set; }
+    [Parameter]
+    public int FlavourNumber { get; set; }
+
+    public string PaymentMethod { get; set; } = string.Empty;
+    public int SoldFlavourCount { get; set; }
+    private bool flag { get; set; } = false;
+    private bool IsCreditCardPayment { get; set; } = false;
+    public double MoneyInMachine { get; set; }
+    public double CreditCardPaymentTotal { get; set; }
+
+    public UserInput userInput = new UserInput();
+
+    private void OnGoBackClickHandler()
+    {
+        navMan.NavigateTo("/");
+    }
+
+    private void OnCashClickHandler()
+    {
+        PaymentMethod = "Cash";
+        IsCreditCardPayment = false;
+    }
+
+    private void OnCreditCardClickHandler()
+    {
+        PaymentMethod = "Credit Card";
+        IsCreditCardPayment = true;
+    }
+
+    private async void DisplayInformation()
+    {
+        if (File.Exists("FlavourCount.txt"))
+        {
+            using StreamWriter file = new("FlavourCount.txt", append: true);
+            await file.WriteLineAsync(FlavourNumber.ToString());
+        }
+        else
+        {
+            await File.WriteAllTextAsync("FlavourCount.txt", FlavourNumber.ToString());
+        }
+        var flavourLinesCount = File.ReadLines(@"FlavourCount.txt").Count();
+        SoldFlavourCount = 10 - flavourLinesCount;
+        flag = true;
+
+        if (File.Exists("MoneyInMachine.txt"))
+        {
+            using StreamWriter file = new("MoneyInMachine.txt", append: true);
+            await file.WriteLineAsync(Constants.Price.ToString());
+        }
+        else
+        {
+            await File.WriteAllTextAsync("MoneyInMachine.txt", Constants.Price.ToString());
+        }
+        var moneyInMachineLines = File.ReadAllLines("MoneyInMachine.txt");
+        double[] arrMoneyInMachine = new double[moneyInMachineLines.Length];
+        for (int i = 0; i < moneyInMachineLines.Length; i++)
+        {
+            arrMoneyInMachine = Array.ConvertAll(moneyInMachineLines, double.Parse);
+        }
+        MoneyInMachine = arrMoneyInMachine.Sum();
+
+        if (IsCreditCardPayment)
+        {
+            if (File.Exists("CreditCardPaymentTotal.txt"))
+            {
+                using StreamWriter file = new("CreditCardPaymentTotal.txt", append: true);
+                await file.WriteLineAsync(Constants.Price.ToString());
+            }
+            else
+            {
+                await File.WriteAllTextAsync("CreditCardPaymentTotal.txt", Constants.Price.ToString());
+            }
+            var creditCardPaymentLines = File.ReadAllLines("CreditCardPaymentTotal.txt");
+            double[] arrCreditCardPayment = new double[creditCardPaymentLines.Length];
+            for (int i = 0; i < creditCardPaymentLines.Length; i++)
+            {
+                arrCreditCardPayment = Array.ConvertAll(creditCardPaymentLines, double.Parse);
+            }
+            CreditCardPaymentTotal = arrCreditCardPayment.Sum();
+        }
+        else
+        {
+            var creditCardPaymentLines = File.ReadAllLines("CreditCardPaymentTotal.txt");
+            double[] arrCreditCardPayment = new double[creditCardPaymentLines.Length];
+            for (int i = 0; i < creditCardPaymentLines.Length; i++)
+            {
+                arrCreditCardPayment = Array.ConvertAll(creditCardPaymentLines, double.Parse);
+            }
+            CreditCardPaymentTotal = arrCreditCardPayment.Sum();
+        }
+    }
+}
