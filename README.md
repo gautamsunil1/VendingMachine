@@ -3,7 +3,8 @@ This is a simple web application written in Blazor for Sonic Healthcare coding c
 
 Vending Machine application information:
 This web application is developed using Blazor framework(Trial version of Telerik UI for Blazor library) in .NET 6. The layout has been kept simple(css missing) because the focus was on the functionality of the application.
-Tests have not been written. Information is held in memory during runtime.
+Tests have not been written because I do not have that experience yet and could not invest time to learn and implement it at this moment.
+Information is held in memory during runtime with the use of System.IO File.
 Due to time constraint on my end, I have kept the functionality and design to the minimum required. I will be more than happy to update the functionality and design if required.
 
 Index/Home page:
