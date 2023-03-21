@@ -19,10 +19,6 @@ variables:
 steps:
 - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
-
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
@@ -30,6 +26,10 @@ steps:
     feedsToUse: 'config'
     nugetConfigPath: '$(consoleNugetConfigPath)'
     externalFeedCredentials: 'Telerik Feed'
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
 
 - task: VSBuild@1
   inputs:
