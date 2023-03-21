@@ -13,6 +13,8 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  consoleNugetConfigPath: 'VendingMachine/NuGet.Config'
+  consoleProjectPath: 'VendingMachine/VendingMachine.csproj'
 
 steps:
 - task: NuGetToolInstaller@1
@@ -20,6 +22,14 @@ steps:
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '$(consoleProjectPath)'
+    feedsToUse: 'config'
+    nugetConfigPath: '$(consoleNugetConfigPath)'
+    externalFeedCredentials: 'Telerik Feed'
 
 - task: VSBuild@1
   inputs:
